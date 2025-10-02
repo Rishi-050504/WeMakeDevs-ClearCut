@@ -4,9 +4,7 @@ import { FileText, Heart, Scale, TrendingUp, Calendar, Download, Eye, Menu, Arro
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from './ui/all-components';
 import { documentAPI } from '../services/api';
 import { useEffect } from 'react';
-useEffect(() => {
-  loadDocuments();
-}, []);
+
 interface AnalyzedDocument {
   id: string;
   name: string;
@@ -21,7 +19,18 @@ interface AnalyticsPageProps {
   onViewAnalytics: () => void;
   onBackToUpload: () => void;
 }
-const loadDocuments = async () => {
+
+export function AnalyticsPage({ documents, onLogout, onViewAnalytics, onBackToUpload }: AnalyticsPageProps) {
+  const [selectedType, setSelectedType] = useState<'all' | 'medical' | 'legal' | 'general'>('all');
+  const [showMenu, setShowMenu] = useState(false);
+
+  const documentTypes = [
+    { key: 'all', label: 'All Documents', icon: FileText, count: documents.length },
+    { key: 'medical', label: 'Medical', icon: Heart, count: documents.filter(d => d.type === 'medical').length },
+    { key: 'legal', label: 'Legal', icon: Scale, count: documents.filter(d => d.type === 'legal').length },
+    { key: 'general', label: 'General', icon: FileText, count: documents.filter(d => d.type === 'general').length }
+  ];
+  const loadDocuments = async () => {
   try {
     const response = await documentAPI.getAll();
     if (response.data.success) {
@@ -39,17 +48,9 @@ const loadDocuments = async () => {
     console.error('Failed to load documents:', error);
   }
 };
-export function AnalyticsPage({ documents, onLogout, onViewAnalytics, onBackToUpload }: AnalyticsPageProps) {
-  const [selectedType, setSelectedType] = useState<'all' | 'medical' | 'legal' | 'general'>('all');
-  const [showMenu, setShowMenu] = useState(false);
-
-  const documentTypes = [
-    { key: 'all', label: 'All Documents', icon: FileText, count: documents.length },
-    { key: 'medical', label: 'Medical', icon: Heart, count: documents.filter(d => d.type === 'medical').length },
-    { key: 'legal', label: 'Legal', icon: Scale, count: documents.filter(d => d.type === 'legal').length },
-    { key: 'general', label: 'General', icon: FileText, count: documents.filter(d => d.type === 'general').length }
-  ];
-
+useEffect(() => {
+  loadDocuments();
+}, []);
   const filteredDocuments = selectedType === 'all' 
     ? documents 
     : documents.filter(doc => doc.type === selectedType);

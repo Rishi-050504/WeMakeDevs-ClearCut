@@ -11,13 +11,7 @@ import { AnalyticsPage } from './components/AnalyticsPage';
 import { PostAnalysisSummary } from './components/PostAnalysisSummary';
 import { useState, useEffect } from 'react';
 import { documentAPI } from './services/api';
-useEffect(() => {
-  // Check if user is logged in
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    setIsLoggedIn(true);
-  }
-}, []);
+
 type AppState = 'home' | 'upload' | 'summary' | 'loading' | 'legal-analysis' | 'medical-analysis' | 'general-analysis' | 'post-summary' | 'analytics';
 
 interface AnalyzedDocument {
@@ -34,7 +28,13 @@ export default function App() {
   const [documentType, setDocumentType] = useState<'medical' | 'legal' | 'general'>('medical');
   const [analyzedDocuments, setAnalyzedDocuments] = useState<AnalyzedDocument[]>([]);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string; context: string } | null>(null);
-
+  useEffect(() => {
+  // Check if user is logged in
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    setIsLoggedIn(true);
+  }
+}, []);
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setCurrentState('home');
