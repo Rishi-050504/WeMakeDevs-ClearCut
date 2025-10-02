@@ -9,8 +9,9 @@ export const qdrantClient = new QdrantClient({ url: QDRANT_URL });
 export async function initializeQdrant(): Promise<void> {
   try {
     // Test connection
-    const health = await qdrantClient.api('cluster').getClusterStatus();
-    logger.info('✅ Qdrant connected successfully', { status: health });
+    // If the above fix fails, use this workaround in src/config/qdrant.ts
+    const health = await (qdrantClient as any).getHealth();
+    logger.info('✅ Qdrant connected successfully', { status: health.status })
   } catch (error) {
     logger.error('❌ Qdrant connection failed:', error);
     throw error;

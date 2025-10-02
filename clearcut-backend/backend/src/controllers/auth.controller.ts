@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { logger } from '../utils/logger.js';
-
+import { Secret, SignOptions } from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
@@ -32,9 +32,9 @@ export async function register(req: Request, res: Response) {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { userId: (user._id as string).toString(), email: user.email }, // Use .toString() on ObjectId
+      JWT_SECRET as Secret, // Cast JWT_SECRET to the correct type
+      { expiresIn: JWT_EXPIRES_IN } as SignOptions // Cast options object
     );
 
     logger.info('User registered successfully', { userId: user._id, email });
@@ -81,9 +81,9 @@ export async function login(req: Request, res: Response) {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { userId: (user._id as string).toString(), email: user.email }, // Use .toString() on ObjectId
+      JWT_SECRET as Secret, // Cast JWT_SECRET to the correct type
+      { expiresIn: JWT_EXPIRES_IN } as SignOptions // Cast options object
     );
 
     logger.info('User logged in', { userId: user._id, email });
@@ -119,9 +119,9 @@ export async function refresh(req: Request, res: Response) {
     }
 
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { userId: (user._id as string).toString(), email: user.email }, // Use .toString() on ObjectId
+      JWT_SECRET as Secret, // Cast JWT_SECRET to the correct type
+      { expiresIn: JWT_EXPIRES_IN } as SignOptions // Cast options object
     );
 
     res.json({

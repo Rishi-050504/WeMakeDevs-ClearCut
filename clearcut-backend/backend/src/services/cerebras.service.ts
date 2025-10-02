@@ -47,11 +47,11 @@ export async function analyzeDocumentFast(
     const analysisTime = Date.now() - startTime;
     const content = (response.choices as any)?.[0]?.message?.content || '{}';
     const parsed = JSON.parse(content);
-
+    const tokensUsed = (response.usage as any)?.total_tokens || 0;
     logger.info('Cerebras analysis completed', {
       docType,
       analysisTime: `${analysisTime}ms`,
-      tokensUsed: response.usage?.total_tokens,
+      tokensUsed: tokensUsed,
     });
 
     return {

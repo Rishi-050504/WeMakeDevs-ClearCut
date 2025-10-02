@@ -54,7 +54,7 @@ export async function analyzeDocument(req: Request, res: Response) {
       });
 
     // RAG indexing (async, don't wait)
-    indexDocument(document._id.toString(), rawText)
+    indexDocument((document._id as string).toString(), rawText)
       .then(async chunkCount => {
         document.vectorStoreId = `doc_${document._id}`;
         document.chunkCount = chunkCount;
