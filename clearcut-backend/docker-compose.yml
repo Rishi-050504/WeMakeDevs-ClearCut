@@ -1,4 +1,117 @@
 
+# services:
+#   # MongoDB Database
+#   mongodb:
+#     image: mongo:7
+#     container_name: clearcut-mongodb
+#     restart: unless-stopped
+#     ports:
+#       - "27017:27017"
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: admin
+#       MONGO_INITDB_ROOT_PASSWORD: password123
+#       MONGO_INITDB_DATABASE: clearcut
+#     volumes:
+#       - mongodb_data:/data/db
+#     networks:
+#       - app-network
+
+#   # Qdrant Vector Database
+#   qdrant:
+#     image: qdrant/qdrant:latest
+#     container_name: clearcut-qdrant
+#     restart: unless-stopped
+#     ports:
+#       - "6333:6333"
+#     volumes:
+#       - qdrant_data:/qdrant/storage
+#     networks:
+#       - app-network
+
+#   # MCP Gateway
+#   mcp-gateway:
+#     image: mcp-gateway:latest
+#     container_name: clearcut-mcp-gateway
+#     restart: unless-stopped
+#     ports:
+#       - "8811:8811"
+#     environment:
+#       - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ./mcp-gateway-config.json:/app/config.json
+#     networks:
+#       - app-network
+#     depends_on:
+#       - document-analyzer
+#       - entity-extractor
+#       - timeline-builder
+#       - legal-analyzer
+
+#   # Backend API
+#   backend:
+#     build:
+#       context: ./backend
+#       dockerfile: Dockerfile
+#     container_name: clearcut-backend
+#     restart: unless-stopped
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - NODE_ENV=production
+#       - PORT=3000
+#       - MONGODB_URI=mongodb://admin:password123@mongodb:27017/clearcut?authSource=admin
+#       - QDRANT_URL=http://qdrant:6333
+#       - CEREBRAS_API_KEY=${CEREBRAS_API_KEY}
+#       - JWT_SECRET=${JWT_SECRET}
+#       - MCP_GATEWAY_URL=http://mcp-gateway:8811
+#     depends_on:
+#       - mongodb
+#       - qdrant
+#       - mcp-gateway
+#     networks:
+#       - app-network
+
+#   # MCP Server Builders (only run during build)
+#   document-analyzer-build:
+#     build:
+#       context: ./mcp-servers/document-analyzer
+#       dockerfile: Dockerfile
+#     image: clearcut-document-analyzer:latest
+#     profiles:
+#       - build
+
+#   entity-extractor-build:
+#     build:
+#       context: ./mcp-servers/entity-extractor
+#       dockerfile: Dockerfile
+#     image: clearcut-entity-extractor:latest
+#     profiles:
+#       - build
+
+#   timeline-builder-build:
+#     build:
+#       context: ./mcp-servers/timeline-builder
+#       dockerfile: Dockerfile
+#     image: clearcut-timeline-builder:latest
+#     profiles:
+#       - build
+
+#   legal-analyzer-build:
+#     build:
+#       context: ./mcp-servers/legal-analyzer
+#       dockerfile: Dockerfile
+#     image: clearcut-legal-analyzer:latest
+#     profiles:
+#       - build
+
+# volumes:
+#   mongodb_data:
+#   qdrant_data:
+
+# networks:
+#   app-network:
+#     driver: bridge
 services:
   # MongoDB Database
   mongodb:
@@ -30,6 +143,9 @@ services:
 
   # MCP Gateway
   mcp-gateway:
+    build:
+      context: ./mcp-gateway  # Assuming this is the correct folder name
+      dockerfile: Dockerfile
     image: mcp-gateway:latest
     container_name: clearcut-mcp-gateway
     restart: unless-stopped
@@ -42,11 +158,6 @@ services:
       - ./mcp-gateway-config.json:/app/config.json
     networks:
       - app-network
-    depends_on:
-      - document-analyzer-build
-      - entity-extractor-build
-      - timeline-builder-build
-      - legal-analyzer-build
 
   # Backend API
   backend:

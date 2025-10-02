@@ -8,10 +8,11 @@ export const qdrantClient = new QdrantClient({ url: QDRANT_URL });
 
 export async function initializeQdrant(): Promise<void> {
   try {
-    // Test connection
-    // If the above fix fails, use this workaround in src/config/qdrant.ts
-    const health = await (qdrantClient as any).getHealth();
-    logger.info('✅ Qdrant connected successfully', { status: health.status })
+    // Test the connection by requesting the list of collections.
+    // This is a reliable way to confirm connectivity.
+    await qdrantClient.getCollections();
+    
+    logger.info('✅ Qdrant connected successfully');
   } catch (error) {
     logger.error('❌ Qdrant connection failed:', error);
     throw error;

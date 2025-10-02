@@ -15,7 +15,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     password: ''
   });
   const [signupData, setSignupData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: ''
   });
@@ -37,7 +37,8 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     }
   } catch (error: any) {
     console.error('Authentication error:', error);
-    alert(error.response?.data?.message || 'Authentication failed');
+    //... in the catch block
+    alert(JSON.stringify(error.response?.data, null, 2));
   }
 };
 
@@ -102,8 +103,8 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 <Input
                   type="text"
                   placeholder="Your username"
-                  value={signupData.username}
-                  onChange={(e) => handleSignupChange('username', e.target.value)}
+                  value={signupData.name}
+                  onChange={(e) => handleSignupChange('name', e.target.value)}
                   className="w-full h-10 border-black/20 bg-white placeholder:text-black/40 text-sm text-black rounded-lg"
                   required
                 />
