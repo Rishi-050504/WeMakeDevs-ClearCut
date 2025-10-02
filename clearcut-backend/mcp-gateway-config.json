@@ -1,0 +1,64 @@
+{
+  "mcpServers": {
+    "document-analyzer": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=clearcut-backend_app-network",
+        "-e",
+        "CEREBRAS_API_KEY",
+        "clearcut-document-analyzer:latest"
+      ],
+      "env": {
+        "CEREBRAS_API_KEY": "${CEREBRAS_API_KEY}"
+      }
+    },
+    "entity-extractor": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=clearcut-backend_app-network",
+        "-e",
+        "CEREBRAS_API_KEY",
+        "clearcut-entity-extractor:latest"
+      ],
+      "env": {
+        "CEREBRAS_API_KEY": "${CEREBRAS_API_KEY}"
+      }
+    },
+    "timeline-builder": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=clearcut-backend_app-network",
+        "-e",
+        "CEREBRAS_API_KEY",
+        "clearcut-timeline-builder:latest"
+      ],
+      "env": {
+        "CEREBRAS_API_KEY": "${CEREBRAS_API_KEY}"
+      }
+    },
+    "legal-analyzer": {
+      "command": "docker",
+        "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=clearcut-backend_app-network",
+        "-e",
+        "CEREBRAS_API_KEY",
+        "clearcut-legal-analyzer:latest"
+      ],
+      "env": {
+        "CEREBRAS_API_KEY": "${CEREBRAS_API_KEY}"
+      }
+    }
+  }
+}
