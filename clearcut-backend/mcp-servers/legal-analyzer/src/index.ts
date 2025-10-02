@@ -55,7 +55,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     if (name === 'check_compliance') {
-      return await checkCompliance(args.text, args.standards);
+      // Add type guard to ensure args exists and has correct properties
+      if (!args || typeof args !== 'object') {
+        throw new Error('Invalid arguments');
+      }
+      
+      const { text, standards } = args as { text: string; standards: string[] };
+      
+      if (!text || !standards) {
+        throw new Error('Missing required arguments: text and standards');
+      }
+      
+      return await checkCompliance(text, standards);
     }
     throw new Error(`Unknown tool: ${name}`);
   } catch (error: any) {
@@ -92,7 +103,7 @@ async function checkCompliance(text: string, standards: string[]) {
       response_format: { type: 'json_object' },
     });
 
-    const content = response.choices[0]?.message?.content || '{}';
+    const content = (response.choices as any)?.[0]?.message?.content || '{}';
     results[standard] = JSON.parse(content);
   }
   

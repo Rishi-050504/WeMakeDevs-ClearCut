@@ -47,8 +47,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments');
+    }
+
     if (name === 'verify_claim') {
-      return await verifyClaim(args.text, args.claim);
+      const { text, claim } = args as { text: string; claim: string };
+      if (!text || !claim) {
+        throw new Error('Missing required arguments: text and claim');
+      }
+      return await verifyClaim(text, claim);
     }
     throw new Error(`Unknown tool: ${name}`);
   } catch (error: any) {
@@ -77,7 +85,7 @@ async function verifyClaim(text: string, claim: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [{ type: 'text', text: content }],

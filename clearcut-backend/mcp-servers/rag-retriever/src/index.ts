@@ -58,8 +58,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments');
+    }
+
     if (name === 'suggest_questions') {
-      return await suggestQuestions(args.text);
+      const { text } = args as { text: string };
+      if (!text) {
+        throw new Error('Missing required argument: text');
+      }
+      return await suggestQuestions(text);
     }
     throw new Error(`Unknown tool: ${name}`);
   } catch (error: any) {
@@ -88,7 +96,7 @@ async function suggestQuestions(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"questions": []}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [{ type: 'text', text: content }],

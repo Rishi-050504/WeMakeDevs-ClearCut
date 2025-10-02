@@ -45,7 +45,7 @@ export async function analyzeDocumentFast(
     });
 
     const analysisTime = Date.now() - startTime;
-    const content = response.choices[0]?.message?.content || '{}';
+    const content = (response.choices as any)?.[0]?.message?.content || '{}';
     const parsed = JSON.parse(content);
 
     logger.info('Cerebras analysis completed', {
@@ -90,7 +90,7 @@ export async function generateChatResponse(
       max_tokens: 1024,
     });
 
-    return response.choices[0]?.message?.content || 'I cannot answer that question.';
+    return (response.choices as any)?.[0]?.message?.content || 'I cannot answer that question.';
   } catch (error) {
     logger.error('Chat response generation failed:', error);
     throw error;
@@ -120,7 +120,7 @@ export async function* streamChatResponse(
     });
 
     for await (const chunk of stream) {
-      const content = chunk.choices[0]?.delta?.content;
+      const content = (chunk.choices as any)?.[0]?.delta?.content;
       if (content) {
         yield content;
       }

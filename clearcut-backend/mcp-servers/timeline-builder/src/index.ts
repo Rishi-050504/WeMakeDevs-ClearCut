@@ -63,12 +63,26 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments');
+    }
+
     switch (name) {
-      case 'construct_timeline':
-        return await constructTimeline(args.text);
+      case 'construct_timeline': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await constructTimeline(text);
+      }
       
-      case 'identify_deadlines':
-        return await identifyDeadlines(args.text);
+      case 'identify_deadlines': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await identifyDeadlines(text);
+      }
       
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -104,7 +118,7 @@ async function constructTimeline(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"timeline": []}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [
@@ -134,7 +148,7 @@ async function identifyDeadlines(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"deadlines": []}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [

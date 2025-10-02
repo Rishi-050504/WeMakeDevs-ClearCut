@@ -83,15 +83,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments');
+    }
+
     switch (name) {
-      case 'analyze_document':
-        return await analyzeDocument(args.text, args.type);
+      case 'analyze_document': {
+        const { text, type } = args as { text: string; type: string };
+        if (!text || !type) {
+          throw new Error('Missing required arguments: text and type');
+        }
+        return await analyzeDocument(text, type);
+      }
       
-      case 'extract_clauses':
-        return await extractClauses(args.text);
+      case 'extract_clauses': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await extractClauses(text);
+      }
       
-      case 'risk_assessment':
-        return await assessRisk(args.text);
+      case 'risk_assessment': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await assessRisk(text);
+      }
       
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -127,7 +146,7 @@ async function analyzeDocument(text: string, type: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [
@@ -157,7 +176,7 @@ async function extractClauses(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"clauses": []}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [
@@ -187,7 +206,7 @@ async function assessRisk(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"riskScore": 0}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [

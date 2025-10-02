@@ -63,12 +63,26 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments');
+    }
+
     switch (name) {
-      case 'extract_all_entities':
-        return await extractEntities(args.text);
+      case 'extract_all_entities': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await extractEntities(text);
+      }
       
-      case 'build_relationships':
-        return await buildRelationships(args.text);
+      case 'build_relationships': {
+        const { text } = args as { text: string };
+        if (!text) {
+          throw new Error('Missing required argument: text');
+        }
+        return await buildRelationships(text);
+      }
       
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -104,7 +118,7 @@ async function extractEntities(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"entities": {}}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [
@@ -134,7 +148,7 @@ async function buildRelationships(text: string) {
     response_format: { type: 'json_object' },
   });
 
-  const content = response.choices[0]?.message?.content || '{"relationships": []}';
+  const content = (response.choices as any)?.[0]?.message?.content || '{}';
   
   return {
     content: [
