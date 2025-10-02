@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Upload, Camera, Link as LinkIcon, FileText, Heart, Scale, Menu, Check } from 'lucide-react';
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from './ui/all-components';
 import { Header } from './Header';
+import { documentAPI } from '../services/api';
+import { extractText } from '../utils/text-extractor';
 
 interface UploadPageProps {
   onUpload: (type: 'medical' | 'legal' | 'general', file: File | null, context: string) => void;
@@ -24,9 +26,50 @@ export function UploadPage({ onUpload, onLogout, onViewAnalytics }: UploadPagePr
     }
   };
 
-  const handleUpload = () => {
-    onUpload(selectedTab, selectedFile, context);
-  };
+  const handleUpload = async () => {
+  if (!selectedFile) return;
+  
+  try {
+    // Extract text from file (you'll need to implement this)
+    const rawText = await extractTextFromFile(selectedFile);
+    
+    const response = await documentAPI.analyze({
+      fileName: selectedFile.name,
+      mimeType: selectedFile.type,
+      rawText,
+      docType: selectedTab === 'medical' ? 'Medical' : 
+               selectedTab === 'legal' ? 'Legal' : 'General',
+    });
+    
+    if (response.data.success) {
+      // Pass to parent
+      onUpload(
+        selectedTab,
+        selectedFile,
+        context
+      );
+    }
+  } catch (error: any) {
+    console.error('Upload error:', error);
+    alert(error.response?.data?.message || 'Upload failed');
+  }
+};
+async function extractTextFromFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      resolve(text);
+    };
+    
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    
+    // For PDF/DOCX, you'd need additional processing
+    // For now, just read as text
+    reader.readAsText(file);
+  });
+}
 
   const uploadOptions = [
     { icon: Upload, label: 'Browse Files', action: 'browse' },

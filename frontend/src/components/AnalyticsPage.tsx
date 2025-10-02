@@ -2,7 +2,11 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 import { FileText, Heart, Scale, TrendingUp, Calendar, Download, Eye, Menu, ArrowLeft } from 'lucide-react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from './ui/all-components';
-
+import { documentAPI } from '../services/api';
+import { useEffect } from 'react';
+useEffect(() => {
+  loadDocuments();
+}, []);
 interface AnalyzedDocument {
   id: string;
   name: string;
@@ -17,7 +21,24 @@ interface AnalyticsPageProps {
   onViewAnalytics: () => void;
   onBackToUpload: () => void;
 }
-
+const loadDocuments = async () => {
+  try {
+    const response = await documentAPI.getAll();
+    if (response.data.success) {
+      // Transform backend data to frontend format
+      const docs = response.data.documents.map((doc: any) => ({
+        id: doc._id,
+        name: doc.fileName,
+        type: doc.docType.toLowerCase(),
+        date: new Date(doc.createdAt).toLocaleDateString(),
+        size: doc.fileSize,
+      }));
+      // Update your documents state
+    }
+  } catch (error) {
+    console.error('Failed to load documents:', error);
+  }
+};
 export function AnalyticsPage({ documents, onLogout, onViewAnalytics, onBackToUpload }: AnalyticsPageProps) {
   const [selectedType, setSelectedType] = useState<'all' | 'medical' | 'legal' | 'general'>('all');
   const [showMenu, setShowMenu] = useState(false);

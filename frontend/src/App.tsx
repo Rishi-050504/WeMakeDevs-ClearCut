@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LoginPage } from './components/LoginPage';
 import { HomePage } from './components/HomePage';
@@ -10,7 +9,15 @@ import { MedicalAnalysisPage } from './components/MedicalAnalysisPage';
 import { GeneralAnalysisPage } from './components/GeneralAnalysisPage';
 import { AnalyticsPage } from './components/AnalyticsPage';
 import { PostAnalysisSummary } from './components/PostAnalysisSummary';
-
+import { useState, useEffect } from 'react';
+import { documentAPI } from './services/api';
+useEffect(() => {
+  // Check if user is logged in
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    setIsLoggedIn(true);
+  }
+}, []);
 type AppState = 'home' | 'upload' | 'summary' | 'loading' | 'legal-analysis' | 'medical-analysis' | 'general-analysis' | 'post-summary' | 'analytics';
 
 interface AnalyzedDocument {
@@ -37,31 +44,48 @@ export default function App() {
     setCurrentState('upload');
   };
 
-  const handleUpload = (type: 'medical' | 'legal' | 'general', file: File | null, context: string) => {
-    setDocumentType(type);
+  const handleUpload = async (type: 'medical' | 'legal' | 'general', file: File | null, context: string) => {
+  if (!file) return;
+  
+  setDocumentType(type);
+  
+  try {
+    const rawText = await extractTextFromFile(file);
     
-    // Store file information for summary
-    if (file) {
-      setUploadedFile({
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(1)} KB`,
-        context
-      });
-      
-      // Add document to analytics
-      const newDoc: AnalyzedDocument = {
-        id: Date.now().toString(),
-        name: file.name,
-        type,
-        date: new Date().toLocaleDateString(),
-        size: `${(file.size / 1024).toFixed(1)} KB`
-      };
-      setAnalyzedDocuments(prev => [newDoc, ...prev]);
-    }
+    const response = await documentAPI.analyze({
+      fileName: file.name,
+      mimeType: file.type,
+      rawText,
+      docType: type === 'medical' ? 'Medical' : 
+               type === 'legal' ? 'Legal' : 'General',
+    });
     
-    // Go to summary first
+    // Store file info
+    setUploadedFile({
+      name: file.name,
+      size: `${(file.size / 1024).toFixed(1)} KB`,
+      context,
+    });
+    
+    // Store document ID for later use
+    sessionStorage.setItem('currentDocumentId', response.data.documentId);
+    
+    // Add to analytics
+    const newDoc = {
+      id: response.data.documentId,
+      name: file.name,
+      type,
+      date: new Date().toLocaleDateString(),
+      size: `${(file.size / 1024).toFixed(1)} KB`,
+    };
+    setAnalyzedDocuments(prev => [newDoc, ...prev]);
+    
     setCurrentState('summary');
-  };
+  } catch (error) {
+    console.error('Upload failed:', error);
+    alert('Failed to upload document');
+  }
+};
 
   const handleProceedFromSummary = () => {
     setCurrentState('loading');

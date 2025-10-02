@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Button, Input } from './ui/all-components';
-
+import { authAPI } from '../services/api';
 const documentsImageUrl = 'https://i.pinimg.com/1200x/c8/88/65/c88865a0346f9c09a87defe3a56b3ccf.jpg';
 
 interface LoginPageProps {
@@ -20,13 +20,26 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     password: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate login/signup
-    setTimeout(() => {
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  try {
+    const response = isLogin 
+      ? await authAPI.login(loginData)
+      : await authAPI.register(signupData);
+    
+    if (response.data.success) {
+      // Store token
+      localStorage.setItem('auth_token', response.data.token);
+      
+      // Call parent handler
       onLoginSuccess();
-    }, 500);
-  };
+    }
+  } catch (error: any) {
+    console.error('Authentication error:', error);
+    alert(error.response?.data?.message || 'Authentication failed');
+  }
+};
 
   const handleLoginChange = (field: string, value: string) => {
     setLoginData(prev => ({ ...prev, [field]: value }));
