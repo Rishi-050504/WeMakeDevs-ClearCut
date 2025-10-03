@@ -21,10 +21,15 @@ We built ClearCut to give professionals, patients, and students the power to mak
 **Downloadable Reports**: Dynamically generated text summaries of all AI findings for each document.
 
 **Tech Stack**
+
 **Frontend**:	React, Vite, TypeScript, Tailwind CSS, Framer Motion
+
 **Backend**:	Node.js, Express.js, TypeScript
+
 **AI / ML**:	Cerebras API (Llama 3.3 70B), Qdrant (Vector DB), @xenova/transformers (Embeddings), RAG Pipeline
+
 **Database**:	MongoDB,Qdrant
+
 **DevOps**:	Docker, Docker Compose
 
 **Data Flow**:
