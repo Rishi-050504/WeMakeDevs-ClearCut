@@ -4,7 +4,6 @@ import { Upload, Camera, Link as LinkIcon, FileText, Heart, Scale, Menu, Check }
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from './ui/all-components';
 import { Header } from './Header';
 import { documentAPI } from '../services/api';
-import { extractText } from '../utils/text-extractor';
 
 interface UploadPageProps {
   onUpload: (type: 'medical' | 'legal' | 'general', file: File | null, context: string) => void;
@@ -26,34 +25,33 @@ export function UploadPage({ onUpload, onLogout, onViewAnalytics }: UploadPagePr
     }
   };
 
-  const handleUpload = async () => {
+const handleUpload = async () => {
   if (!selectedFile) return;
   
   try {
-    // Extract text from file (you'll need to implement this)
-    const rawText = await extractTextFromFile(selectedFile);
+    const arrayBuffer = await selectedFile.arrayBuffer();
+    const base64 = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
     
     const response = await documentAPI.analyze({
       fileName: selectedFile.name,
       mimeType: selectedFile.type,
-      rawText,
+      fileData: base64,
       docType: selectedTab === 'medical' ? 'Medical' : 
                selectedTab === 'legal' ? 'Legal' : 'General',
+      context: context,
     });
     
     if (response.data.success) {
-      // Pass to parent
-      onUpload(
-        selectedTab,
-        selectedFile,
-        context
-      );
+      onUpload(selectedTab, selectedFile, context);
     }
   } catch (error: any) {
     console.error('Upload error:', error);
     alert(error.response?.data?.message || 'Upload failed');
   }
 };
+
 async function extractTextFromFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

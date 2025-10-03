@@ -26,6 +26,7 @@ interface LegalAnalysisPageProps {
   onLogout: () => void;
   onBack: () => void;
   onViewAnalytics: () => void;
+  onViewPostSummary: () => void;
 }
 
 export function LegalAnalysisPage({ onLogout, onBack, onViewAnalytics }: LegalAnalysisPageProps) {

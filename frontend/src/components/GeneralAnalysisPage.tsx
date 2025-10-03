@@ -27,6 +27,7 @@ interface GeneralAnalysisPageProps {
   onLogout: () => void;
   onBack: () => void;
   onViewAnalytics: () => void;
+   onViewPostSummary: () => void; 
 }
 
 export function GeneralAnalysisPage({ onLogout, onBack, onViewAnalytics }: GeneralAnalysisPageProps) {

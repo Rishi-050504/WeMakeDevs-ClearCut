@@ -44,20 +44,29 @@ export default function App() {
     setCurrentState('upload');
   };
 
-  const handleUpload = async (type: 'medical' | 'legal' | 'general', file: File | null, context: string) => {
+  const handleUpload = async (
+  type: 'medical' | 'legal' | 'general', 
+  file: File | null, 
+  context: string
+) => {
   if (!file) return;
   
   setDocumentType(type);
   
   try {
-    const rawText = await extractTextFromFile(file);
+    // Convert file to base64
+    const arrayBuffer = await file.arrayBuffer();
+    const base64 = btoa(
+      new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
     
     const response = await documentAPI.analyze({
       fileName: file.name,
       mimeType: file.type,
-      rawText,
+      fileData: base64,
       docType: type === 'medical' ? 'Medical' : 
                type === 'legal' ? 'Legal' : 'General',
+      context: context,
     });
     
     // Store file info
@@ -67,7 +76,7 @@ export default function App() {
       context,
     });
     
-    // Store document ID for later use
+    // Store document ID
     sessionStorage.setItem('currentDocumentId', response.data.documentId);
     
     // Add to analytics
@@ -81,9 +90,9 @@ export default function App() {
     setAnalyzedDocuments(prev => [newDoc, ...prev]);
     
     setCurrentState('summary');
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload failed:', error);
-    alert('Failed to upload document');
+    alert(error.response?.data?.message || 'Failed to upload document');
   }
 };
 

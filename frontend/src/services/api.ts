@@ -48,8 +48,9 @@ export const documentAPI = {
   analyze: (data: {
     fileName: string;
     mimeType: string;
-    rawText: string;
-    docType: 'Legal' | 'Medical' | 'Business' | 'General';
+    fileData: string; // base64
+    docType: 'Legal' | 'Medical' | 'General';
+    context?: string;
   }) =>
     api.post('/api/documents/analyze', data),
   
