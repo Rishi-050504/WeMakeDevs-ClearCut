@@ -41,6 +41,8 @@ We built ClearCut to give professionals, patients, and students the power to mak
 
 **DevOps**:	Docker, Docker Compose
 **Architecture Diagram**:
+![download](https://github.com/user-attachments/assets/673fb604-e5e3-445c-8b6e-fb730d0bc20e)
+
 
 
 **Data Flow**:
