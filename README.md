@@ -40,6 +40,8 @@ We built ClearCut to give professionals, patients, and students the power to mak
 **Database**:	MongoDB,Qdrant
 
 **DevOps**:	Docker, Docker Compose
+**Architecture Diagram**:
+
 
 **Data Flow**:
 
