@@ -5,6 +5,7 @@ import {
   getDocuments,
   getDocument,
   deleteDocument,
+  downloadReport
 } from '../controllers/document.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { validateRequest } from '../middleware/validation.js';
@@ -27,5 +28,6 @@ router.post('/analyze', upload.single('document'), validateRequest(analyzeSchema
 router.get('/', getDocuments);
 router.get('/:id', getDocument);
 router.delete('/:id', deleteDocument);
+router.get('/:id/download', downloadReport);
 
 export default router;

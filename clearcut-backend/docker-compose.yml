@@ -101,6 +101,22 @@ services:
     image: clearcut-legal-analyzer:latest
     profiles:
       - build
+  fact-verifier-build:
+    build:
+      context: ./mcp-servers/fact-verifier
+      dockerfile: Dockerfile
+    image: clearcut-fact-verifier:latest
+    profiles:
+      - build
+
+  rag-retriever-build:
+    build:
+      context: ./mcp-servers/rag-retriever
+      dockerfile: Dockerfile
+    image: clearcut-rag-retriever:latest
+    profiles:
+      - build
+
 
 volumes:
   mongodb_data:

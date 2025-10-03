@@ -171,7 +171,72 @@ export async function getDocument(req: Request, res: Response) {
     });
   }
 }
+export async function downloadReport(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user.userId;
+    const { id } = req.params;
 
+    const document = await DocumentModel.findOne({ _id: id, userId });
+
+    if (!document) {
+      return res.status(404).json({ success: false, message: 'Document not found' });
+    }
+    
+    if (document.status !== 'completed' || !document.analysis) {
+        return res.status(400).json({ success: false, message: 'Document analysis is not yet complete.' });
+    }
+
+    // Generate a simple text report from the analysis data
+    let reportContent = `Analysis Report for: ${document.fileName}\n`;
+    reportContent += `Document Type: ${document.docType}\n`;
+    reportContent += `Analyzed On: ${new Date(document.updatedAt).toLocaleString()}\n`;
+    reportContent += `==================================================\n\n`;
+    
+    reportContent += `## Executive Summary\n`;
+    reportContent += `${document.analysis.summary || 'No summary available.'}\n\n`;
+    
+    reportContent += `## Risk Assessment\n`;
+    reportContent += `- Risk Score: ${document.analysis.riskScore || 'N/A'} / 100\n`;
+    reportContent += `- Sentiment Score: ${document.analysis.sentiment?.toFixed(2) || 'N/A'}\n\n`;
+
+    reportContent += `## Key Findings / Clauses\n`;
+    if (document.analysis.keyClauses?.length > 0) {
+        document.analysis.keyClauses.forEach(item => {
+            reportContent += `- ${item}\n`;
+        });
+    } else {
+        reportContent += `No key findings identified.\n`;
+    }
+    reportContent += `\n`;
+
+    reportContent += `## Obligations / Follow-ups\n`;
+    if (document.analysis.obligations?.length > 0) {
+        document.analysis.obligations.forEach(item => {
+            reportContent += `- ${item}\n`;
+        });
+    } else {
+        reportContent += `No specific obligations identified.\n`;
+    }
+    reportContent += `\n`;
+
+    reportContent += `## Recommendations\n`;
+    if (document.analysis.recommendations?.length > 0) {
+        document.analysis.recommendations.forEach(rec => {
+            reportContent += `- ${rec}\n`;
+        });
+    } else {
+        reportContent += `No recommendations provided.\n`;
+    }
+    
+    res.setHeader('Content-Disposition', `attachment; filename="report-${document.fileName}.txt"`);
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(reportContent);
+
+  } catch (error) {
+    logger.error('Failed to generate report:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate report' });
+  }
+}
 export async function deleteDocument(req: Request, res: Response) {
   try {
     const userId = (req as any).user.userId;
