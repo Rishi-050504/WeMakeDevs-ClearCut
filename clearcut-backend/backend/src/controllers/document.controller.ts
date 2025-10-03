@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DocumentModel } from '../models/Document.js';
+import { DocumentModel, IDocument } from '../models/Document.js';
 import { User } from '../models/User.js';
 import { analyzeDocumentFast } from '../services/cerebras.service.js';
 import { orchestrateAnalysis } from '../services/mcp-orchestrator.js';
@@ -40,9 +40,9 @@ export async function analyzeDocument(req: Request, res: Response) {
     logger.info('Document created', { documentId: document._id, userId, textLength: rawText.length });
 
     // FAST PATH: Direct Cerebras analysis
-    const analysisResult = await analyzeDocumentFast(rawText, docType);
+     const analysisResult: IDocument['analysis'] = await analyzeDocumentFast(rawText, docType);
 
-    // Update document with analysis
+    // Update document with the correctly typed analysis
     document.analysis = analysisResult;
     document.status = 'completed';
     await document.save();
