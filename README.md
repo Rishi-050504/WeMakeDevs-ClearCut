@@ -63,7 +63,7 @@ A .env file with your Cerebras API key.
 
 **Clone the Repository**
 
-git clone
+git clone https://github.com/Rishi-050504/WeMakeDevs-ClearCut.git
 
 cd clearcut-backend
 
