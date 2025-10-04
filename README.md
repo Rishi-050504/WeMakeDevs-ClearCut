@@ -175,5 +175,6 @@ ClearCut is a powerful foundation, and we're excited about where it could go nex
 
 Thank you for your time and for this incredible opportunity!
 
-**DEMO LINK** : 
+**DEMO LINK** : https://youtu.be/QKUvlV9KOMk?si=LyFhRQF7GHfC0W34
+
 -The ClearCut Team (Rishi, Sravya, Moksha, and Rithvik)
